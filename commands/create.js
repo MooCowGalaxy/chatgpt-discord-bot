@@ -20,7 +20,7 @@ module.exports = {
         // check for permission
         if (interaction.user.id !== client.config.discord.ownerId) {
             if (!userInfo.hasPermission) {
-                await interaction.reply({ content: `Sorry, you do not have permission to use this command.` });
+                await interaction.reply({ content: `Sorry, you do not have permission to use this command.`, ephemeral: true });
                 return;
             }
         }
