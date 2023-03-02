@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  userId String @unique
+  threads Thread[]
+  hasPermission Int @default(0)
+}
+
+model Thread {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  threadChannelId String @unique
+  messages Message[]
+  totalTokens Int @default(0)
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  thread Thread @relation(fields: [threadId], references: [id])
+  threadId Int
+  userType Int // 0 for user, 1 for bot
+  message String
+  messageId String
+  tokenCount Int
+}
