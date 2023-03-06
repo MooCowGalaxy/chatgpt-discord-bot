@@ -23,7 +23,7 @@ module.exports = async function generateText(openai, chatHistory, newMessage) {
     });
 
     return {
-        response: completion.data.choices[0].message.content,
+        response: completion.data.choices[0].message.content.trim(),
         totalTokenUsage: completion.data.usage.total_tokens
     };
 }

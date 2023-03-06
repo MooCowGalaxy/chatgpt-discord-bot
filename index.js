@@ -70,8 +70,8 @@ client.on('messageCreate', async message => {
         .setFooter({ text: `Thread ID: ${thread.id} | Total tokens used in this thread: ${thread.totalTokens + completion.totalTokenUsage}` });
 
     // send message in thread
-    if (completion.response.length < 4000) {
-        // 4000 character limit in messages
+    if (completion.response.length < 2000) {
+        // 2000 character limit in messages
         await responseMessage.edit({
             content: completion.response,
             embeds: [embed]
@@ -87,12 +87,16 @@ client.on('messageCreate', async message => {
             remainingWords = remainingWords.slice(1);
 
             const newMessage = [...currentMessage, currentWord];
-            if (newMessage.length > 4000) {
+            if (newMessage.join(' ').length > 2000) {
                 messages.push(currentMessage.join(' '));
                 currentMessage = [currentWord];
             } else {
                 currentMessage.push(currentWord);
             }
+        }
+
+        if (currentMessage.length > 0) {
+            messages.push(currentMessage.join(' '));
         }
 
         for (let i = 0; i < messages.length; i++) {
