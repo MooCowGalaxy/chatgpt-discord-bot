@@ -18,3 +18,8 @@ A simple Discord bot that interfaces with OpenAI's API for ChatGPT!
 4. Set up the database (`npm run db:deploy` and `npm run db:generate`)
 5. Create slash commands (`npm run deploy`)
 6. Run the bot (`npm start`)
+## Updating
+1. Run `git pull` to update the files
+2. Install any new packages (`npm install`)
+3. Check for new database schema (`npm run db:deploy` and `npm run db:generate`)
+4. Update slash commands (`npm run deploy`)

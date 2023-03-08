@@ -1,9 +1,20 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
+const respond = require('../utils/respond');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('create')
-        .setDescription('Starts a new thread.'),
+        .setDescription('Starts a new conversation.')
+        .addStringOption(option =>
+                option.setName('text')
+                    .setDescription('The text to start the conversation with.')
+                    .setRequired(false)
+                    .setMaxLength(1000))
+        .addStringOption(option =>
+                option.setName('topic')
+                    .setDescription('The topic of the thread.')
+                    .setRequired(false)
+                    .setMaxLength(100)),
     execute: async (client, interaction) => {
         // get user object from db
         const userInfo = await client.prisma.user.upsert({
@@ -37,24 +48,38 @@ module.exports = {
             }
         }))._count.id;
 
-        const thread = await message.startThread({
-            name: `${interaction.user.username}'s ChatGPT Thread #${count}`
+        let threadName;
+        if (interaction.options.getString('topic')) {
+            threadName = interaction.options.getString('topic');
+        } else {
+            threadName = `${interaction.user.username}'s ChatGPT Thread #${count}`;
+        }
+
+        const threadChannel = await message.startThread({
+            name: threadName
         });
 
-        await client.prisma.thread.create({
+        const thread = await client.prisma.thread.create({
             data: {
                 user: {
                     connect: {
                         id: userInfo.id
                     }
                 },
-                threadChannelId: thread.id,
+                threadChannelId: threadChannel.id,
                 totalTokens: 0
             }
         });
 
-        await thread.send({ content: `Hi, how can I help?\n\n*Type a message to start chatting! Messages that start with a \`!\` will be ignored.*` });
-
         await interaction.editReply({ content: 'Created, check the thread attached to this message!' });
+
+        const initialReply = interaction.options.getString('text');
+        if (!initialReply) {
+            await threadChannel.send({ content: `Hi, how can I help?\n\n*Type a message to start chatting! Messages that start with a \`!\` will be ignored.*` });
+        } else {
+            const message = await threadChannel.send({ content: `<@${interaction.user.id}> said: ${initialReply}`, flags: [MessageFlags.SuppressNotifications] });
+
+            await respond(client, threadChannel, thread, initialReply.trim(), message.id);
+        }
     }
 }
