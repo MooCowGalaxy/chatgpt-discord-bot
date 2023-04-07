@@ -33,6 +33,8 @@ client.on('messageCreate', async message => {
     if (![ChannelType.PrivateThread, ChannelType.PublicThread].includes(message.channel.type)) return;
     // make sure the message isn't prefixed to ignore
     if (message.content.startsWith(config.settings.ignoreMessagePrefix)) return;
+    // do not reply to self or other bots
+    if (message.author.bot) return;
 
     const threadId = message.channel.id;
 
