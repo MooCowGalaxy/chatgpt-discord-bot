@@ -13,6 +13,11 @@ module.exports = {
             return;
         }
 
+        if (client.config.settings.allowAnyUserToCreateThreads) {
+            await interaction.reply({ content: `All users have permission to create threads. If you want to only allow certain users, set \`allowAnyUserToCreateThreads\` to false in \`config.js\` and restart the bot.`, ephemeral: true });
+            return;
+        }
+
         const user = interaction.options.getUser('user');
 
         const userInfo = await client.prisma.user.upsert({

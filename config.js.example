@@ -1,12 +1,17 @@
 module.exports = {
     openai: {
         key: 'sk-examplekey',
-        modelName: 'gpt-3.5-turbo'
+        modelName: 'gpt-3.5-turbo',
+        initialPrompt: 'You are a helpful and kind assistant.'
     },
     discord: {
         ownerId: '123456789012345678',
         guildId: '123456789012345678',
         clientId: '123456789012345678',
         token: 'discord.bot.token.here'
+    },
+    settings: {
+        allowAnyUserToCreateThreads: false,
+        allowAnyUserToReplyThreads: false
     }
 };

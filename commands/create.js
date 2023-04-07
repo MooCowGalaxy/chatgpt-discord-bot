@@ -29,7 +29,8 @@ module.exports = {
         });
 
         // check for permission
-        if (interaction.user.id !== client.config.discord.ownerId) {
+        if (!client.config.settings.allowAnyUserToCreateThreads &&
+            interaction.user.id !== client.config.discord.ownerId) {
             if (!userInfo.hasPermission) {
                 await interaction.reply({ content: `Sorry, you do not have permission to use this command.`, ephemeral: true });
                 return;
@@ -75,7 +76,10 @@ module.exports = {
 
         const initialReply = interaction.options.getString('text');
         if (!initialReply) {
-            await threadChannel.send({ content: `Hi, how can I help?\n\n*Type a message to start chatting! Messages that start with a \`!\` will be ignored.*` });
+            const initialMessage = client.config.settings.initialMessage
+                .replaceAll('{ignoreMessagePrefix}', client.config.settings.ignoreMessagePrefix);
+
+            await threadChannel.send({ content: initialMessage });
         } else {
             const message = await threadChannel.send({ content: `<@${interaction.user.id}> said: ${initialReply}`, flags: [MessageFlags.SuppressNotifications] });
 

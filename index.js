@@ -29,8 +29,10 @@ client.once('ready', async () => {
 });
 
 client.on('messageCreate', async message => {
+    // filter out messages from normal text channels
     if (![ChannelType.PrivateThread, ChannelType.PublicThread].includes(message.channel.type)) return;
-    if (message.content.startsWith('!')) return;
+    // make sure the message isn't prefixed to ignore
+    if (message.content.startsWith(config.settings.ignoreMessagePrefix)) return;
 
     const threadId = message.channel.id;
 
@@ -46,9 +48,9 @@ client.on('messageCreate', async message => {
 
     // check for user and reply
     if (!thread) return;
-    if (thread.user.userId !== message.author.id) return;
+    if (!config.settings.allowAnyUserToReplyThreads && thread.user.userId !== message.author.id) return;
 
-    await respond(client, message.channel, thread, message.content.trim(), message.id);
+    await respond(client, thread, message);
 });
 
 client.on('interactionCreate', async interaction => {

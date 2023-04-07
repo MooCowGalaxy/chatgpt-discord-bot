@@ -3,6 +3,7 @@ A simple Discord bot that interfaces with OpenAI's API for ChatGPT!
 ## Features
 - Uses threads for conversations, so multiple conversations can be had at the same time
 - Includes a permissions system to allow the owner of the bot to allow/deny other users to create conversations (defaults to not allowed)
+- Start conversations with initial system prompts
 ## Setup
 1. Install [node.js](https://nodejs.org/en/download/) v18 or higher
 2. Install packages (`npm install`)
@@ -23,3 +24,4 @@ A simple Discord bot that interfaces with OpenAI's API for ChatGPT!
 2. Install any new packages (`npm install`)
 3. Check for new database schema (`npm run db:deploy` and `npm run db:generate`)
 4. Update slash commands (`npm run deploy`)
+5. Update `config.js` for any new configuration values

@@ -1,10 +1,17 @@
-const config = require('../config');
-
 // openai: OpenAIApi
 // chatHistory: [{userType: int, message: string}]
 // newMessage: string
-module.exports = async function generateText(openai, chatHistory, newMessage) {
+module.exports = async function generateText({ config, openai }, chatHistory, newMessage) {
     let messages = [];
+
+    // initial system prompt
+    if (config.openai.initialPrompt?.length > 0) {
+        messages.push({
+            role: 'system',
+            content: config.openai.initialPrompt
+        });
+    }
+
     for (const message of chatHistory) {
         messages.push({
             role: ['user', 'assistant'][message.userType],

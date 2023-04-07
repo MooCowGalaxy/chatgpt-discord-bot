@@ -1,7 +1,9 @@
 const { EmbedBuilder } = require('discord.js');
 const generateText = require('./generateText');
 
-module.exports = async function respond(client, channel, thread, text, messageId) {
+module.exports = async function respond(client, thread, message) {
+    const text = message.content.trim();
+
     // get previous messages in the chat
     const previousMessages = await client.prisma.message.findMany({
         where: {
@@ -13,14 +15,14 @@ module.exports = async function respond(client, channel, thread, text, messageId
         }
     });
 
-    const responseMessage = await channel.send({ content: 'Generating response... this may take a bit.' });
+    const responseMessage = await message.reply({ content: 'Generating response... this may take a bit.' });
     let responseMessageId = responseMessage.id;
 
-    const completion = await generateText(client.openai, previousMessages, text);
+    const completion = await generateText(client, previousMessages, text);
 
     const embed = new EmbedBuilder()
-        .setDescription(`Tokens used to generate prompt: ${completion.totalTokenUsage}`)
-        .setFooter({ text: `Thread ID: ${thread.id} | Total tokens used in this thread: ${thread.totalTokens + completion.totalTokenUsage}` });
+        .setDescription(`Tokens used to generate response: ${completion.totalTokenUsage}`)
+        .setFooter({ text: `Thread ID: ${thread.id}\nTotal tokens used in this thread: ${thread.totalTokens + completion.totalTokenUsage}` });
 
     // send message in thread
     if (completion.response.length < 2000) {
@@ -54,14 +56,14 @@ module.exports = async function respond(client, channel, thread, text, messageId
 
         for (let i = 0; i < messages.length; i++) {
             if (i === messages.length - 1) {
-                const res = await channel.send({ content: messages[i], embeds: [embed] });
+                const res = await message.channel.send({ content: messages[i], embeds: [embed] });
                 responseMessageId = res.id;
             } else if (i === 0) {
                 await responseMessage.edit({
                     content: messages[i]
                 });
             } else {
-                await channel.send({ content: messages[i] });
+                await message.channel.send({ content: messages[i] });
             }
         }
     }
@@ -76,7 +78,7 @@ module.exports = async function respond(client, channel, thread, text, messageId
             },
             userType: 0,
             message: text,
-            messageId: messageId,
+            messageId: message.id,
             tokenCount: 0 // tokens are counted in the bot response
         }
     });
@@ -89,7 +91,7 @@ module.exports = async function respond(client, channel, thread, text, messageId
             },
             userType: 1,
             message: completion.response,
-            messageId: responseMessageId,
+            messageId: responseMessage.id,
             tokenCount: completion.totalTokenUsage
         }
     });
